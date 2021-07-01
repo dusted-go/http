@@ -206,7 +206,9 @@ func Handle(
 			}
 			w.Header().Add("Content-Type", "text/css")
 			_, err := w.Write(assets.CSS.Contents)
-			logger.Error().SetError(err).Msg("Failed to respond with CSS content.")
+			if err != nil {
+				logger.Error().SetError(err).Msg("Failed to respond with CSS content.")
+			}
 
 		} else if key == assets.JS.FileName {
 			if !debugMode {
@@ -215,7 +217,9 @@ func Handle(
 			}
 			w.Header().Add("Content-Type", "text/javascript")
 			_, err := w.Write(assets.JS.Contents)
-			logger.Error().SetError(err).Msg("Failed to respond with JavaScript content.")
+			if err != nil {
+				logger.Error().SetError(err).Msg("Failed to respond with JavaScript content.")
+			}
 
 		} else if asset, ok := assets.Files[key]; ok {
 			f, err := os.Open(asset.FullPath)
