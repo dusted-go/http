@@ -53,9 +53,9 @@ func TrailingSlash(next http.Handler) http.Handler {
 	})
 }
 
-// RedirectHosts is a middleware which redirects from one host to another.
+// Hosts is a middleware which redirects from one host to another.
 // (e.g. https://www.foo.bar -> https://foo.bar)
-func RedirectHosts(hosts map[string]string, enable bool) chain.Intermediate {
+func Hosts(hosts map[string]string, enable bool) chain.Intermediate {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if enable {
