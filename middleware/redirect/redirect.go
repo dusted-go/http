@@ -10,11 +10,20 @@ import (
 )
 
 // ForceHTTPS is a middleware which redirects http:// requests to https://
-func ForceHTTPS(host string, enable bool) chain.Intermediate {
+func ForceHTTPS(enable bool, hosts ...string) chain.Intermediate {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if enable {
-				redirect := r.Host == host && !request.IsHTTPS(r)
+
+				isMatch := false
+				for _, h := range hosts {
+					if h == r.Host {
+						isMatch = true
+						break
+					}
+				}
+
+				redirect := isMatch && !request.IsHTTPS(r)
 				if redirect {
 					url := request.HTTPSURL(r)
 					http.Redirect(w, r, url, 301)
