@@ -8,8 +8,8 @@ import (
 
 	"github.com/dusted-go/diagnostic/log"
 	"github.com/dusted-go/diagnostic/trace"
-	"github.com/dusted-go/http/middleware/chain"
-	"github.com/dusted-go/http/request"
+	"github.com/dusted-go/http/v2/middleware/chain"
+	"github.com/dusted-go/http/v2/request"
 )
 
 // GetTraceFunc gets or generates trace IDs from an incoming HTTP request.

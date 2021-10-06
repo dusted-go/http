@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/dusted-go/http/middleware/chain"
+	"github.com/dusted-go/http/v2/middleware/chain"
 )
 
 // RecoverFunc responds to a HTTP request which ended up panicking.

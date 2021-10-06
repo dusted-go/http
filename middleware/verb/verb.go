@@ -3,7 +3,7 @@ package verb
 import (
 	"net/http"
 
-	"github.com/dusted-go/http/middleware/chain"
+	"github.com/dusted-go/http/v2/middleware/chain"
 )
 
 func isAllowed(method string, methods []string) bool {
