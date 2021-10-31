@@ -48,7 +48,8 @@ func Init(getTrace GetTraceFunc) func(CreateLogEventFunc) chain.Intermediate {
 				}).Fmt("%s %s %s", r.Proto, r.Method, request.FullURL(r))
 
 				// Execute next middleware
-				next.ServeHTTP(w, r.WithContext(ctx))
+				r = r.WithContext(ctx)
+				next.ServeHTTP(w, r)
 			}
 			return http.HandlerFunc(fn)
 		}
