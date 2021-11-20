@@ -4,15 +4,36 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/http/v2/middleware/chain"
+	"github.com/dusted-go/http/v2/server"
 )
 
 const https = "https"
 
-// GetRealIP will parse the X-Forwarded-For header for the real remote address.
-func GetRealIP(count int) chain.Intermediate {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// GetRealIP will take the first value which can be found in any of
+// the given headers and then set the request's RemoteAddr with it.
+func GetRealIP(headersToCheck ...string) server.Middleware {
+	return server.MiddlewareFunc(
+		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
+			for _, headerName := range headersToCheck {
+				val := r.Header.Get(headerName)
+				if len(val) > 0 {
+					r.RemoteAddr = val
+					break
+				}
+			}
+			next.ServeHTTP(w, r)
+		},
+	)
+}
+
+// ForwardedHeaders will parse the X-Forwarded-For and X-Forwarded-Proto
+// headers and modify the request object accordingly.
+//
+// Set the proxyCount to the number of known proxies so that any values
+// set by the origin caller get ignored.
+func ForwardedHeaders(proxyCount int) server.Middleware {
+	return server.MiddlewareFunc(
+		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 
 			// Populate the URL object for later handlers
 			r.URL.Scheme = "http"
@@ -22,7 +43,7 @@ func GetRealIP(count int) chain.Intermediate {
 			}
 
 			// Skip if no proxies
-			if count <= 0 {
+			if proxyCount <= 0 {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -41,7 +62,7 @@ func GetRealIP(count int) chain.Intermediate {
 
 			// Find the correct IP address of the client
 			ips := strings.Split(h, ",")
-			i := len(ips) - count
+			i := len(ips) - proxyCount
 			if i < 0 {
 				i = 0
 			}
@@ -51,6 +72,6 @@ func GetRealIP(count int) chain.Intermediate {
 			r.RemoteAddr = realIP
 
 			next.ServeHTTP(w, r)
-		})
-	}
+		},
+	)
 }

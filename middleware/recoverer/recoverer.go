@@ -1,25 +1,28 @@
 package recoverer
 
 import (
+	"errors"
 	"net/http"
 	"runtime/debug"
 
-	"github.com/dusted-go/http/v2/middleware/chain"
+	"github.com/dusted-go/http/v2/server"
 )
 
 // RecoverFunc responds to a HTTP request which ended up panicking.
-type RecoverFunc func(rcv interface{}, stack []byte) http.HandlerFunc
+type RecoverFunc func(recovered interface{}, stack []byte) http.HandlerFunc
 
 // HandlePanics is a middleware which handles a panic and recovers gracefully by calling the RecovererFunc.
-func HandlePanics(f RecoverFunc) chain.Intermediate {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func HandlePanics(f RecoverFunc) server.Middleware {
+	return server.MiddlewareFunc(
+		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 			defer func() {
-				if rcv := recover(); rcv != nil && rcv != http.ErrAbortHandler {
-					f(rcv, debug.Stack())(w, r)
+				if recovered := recover(); recovered != nil {
+					if err, ok := recovered.(error); !ok || !errors.Is(err, http.ErrAbortHandler) {
+						f(recovered, debug.Stack())(w, r)
+					}
 				}
 			}()
 			next.ServeHTTP(w, r)
-		})
-	}
+		},
+	)
 }

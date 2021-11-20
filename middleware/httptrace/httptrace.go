@@ -8,8 +8,8 @@ import (
 
 	"github.com/dusted-go/diagnostic/log"
 	"github.com/dusted-go/diagnostic/trace"
-	"github.com/dusted-go/http/v2/middleware/chain"
 	"github.com/dusted-go/http/v2/request"
+	"github.com/dusted-go/http/v2/server"
 )
 
 // GetTraceFunc gets or generates trace IDs from an incoming HTTP request.
@@ -19,10 +19,10 @@ type GetTraceFunc func(r *http.Request, logger log.Event) (trace.ID, trace.SpanI
 type CreateLogEventFunc func() log.Event
 
 // Init is a middleware which initialised tracing information and a request scoped log event.
-func Init(getTrace GetTraceFunc) func(CreateLogEventFunc) chain.Intermediate {
-	return func(createLogEvent CreateLogEventFunc) chain.Intermediate {
-		return func(next http.Handler) http.Handler {
-			fn := func(w http.ResponseWriter, r *http.Request) {
+func Init(getTrace GetTraceFunc) func(CreateLogEventFunc) server.Middleware {
+	return func(createLogEvent CreateLogEventFunc) server.Middleware {
+		return server.MiddlewareFunc(
+			func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 				// Initialise a new log event for this request pipeline
 				logger := createLogEvent().
 					SetHTTPRequest(r).
@@ -50,9 +50,8 @@ func Init(getTrace GetTraceFunc) func(CreateLogEventFunc) chain.Intermediate {
 				// Execute next middleware
 				r = r.WithContext(ctx)
 				next.ServeHTTP(w, r)
-			}
-			return http.HandlerFunc(fn)
-		}
+			},
+		)
 	}
 }
 
@@ -93,7 +92,6 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 
 	// Bad or no data
 	return traceID, spanID, errors.New("invalid trace value in HTTP header")
-
 }
 
 // GoogleCloudTrace initialises tracing using the X-Cloud-Trace-Context HTTP header.

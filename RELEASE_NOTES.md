@@ -1,9 +1,18 @@
 Release Notes
 =============
 
+## 3.0.0
+
+- Added new `server` package
+- Deleted `chain` and `verb` middleware packages.
+- The `chain` package has been replaced by `server` and `verb` has been discontinued.
+- Refactored all other middleware to adhere to the new server.Middleware interface.
+- Renamed `proxy.GetRealIP` middleware to `proxy.ForwardedHeaders`.
+- Added a new middleware called `proxy.GetRealIP` with new functionality.
+
 ## 2.1.0
 
-httptrace package changes the request object so that previous middleware also has access to tracing data.
+`httptrace` package changes the request object so that previous middleware also has access to tracing data.
 
 ## 2.0.0
 
