@@ -270,3 +270,13 @@ func (m *Middleware) initAssets(
 
 	return nil
 }
+
+// LogFilter is a log.Filter which filters logs during asset initialisation.
+var LogFilter = log.FilterFunc(func(msg string) bool {
+	return !(strings.HasPrefix(msg, "HTTP/1.1 ") &&
+		(strings.HasSuffix(msg, ".css") ||
+			strings.HasSuffix(msg, ".js") ||
+			strings.HasSuffix(msg, ".svg") ||
+			strings.HasSuffix(msg, ".jpg") ||
+			strings.HasSuffix(msg, ".png")))
+})

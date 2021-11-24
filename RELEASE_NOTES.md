@@ -12,6 +12,7 @@ Release Notes
 - Removed the `route` package and moved the `ShiftPath` function to `request`.
 - Refactored `assets` package to adhere to the `server.Middleware` interface.
 - Updated the `diagnostic/log` package to the `2.0.0-alpha-*` release.
+- Added `assets.LogFilter` to filter asset logs.
 
 ## 2.1.0
 
