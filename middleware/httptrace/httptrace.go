@@ -1,54 +1,50 @@
 package httptrace
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/diagnostic/log"
-	"github.com/dusted-go/diagnostic/trace"
+	"github.com/dusted-go/diagnostic/v2/log"
+	"github.com/dusted-go/diagnostic/v2/trace"
 	"github.com/dusted-go/http/v2/request"
 	"github.com/dusted-go/http/v2/server"
+	"github.com/dusted-go/utils/fault"
 )
 
 // GetTraceFunc gets or generates trace IDs from an incoming HTTP request.
-type GetTraceFunc func(r *http.Request, logger log.Event) (trace.ID, trace.SpanID)
+type GetTraceFunc func(r *http.Request) (trace.ID, trace.SpanID)
 
-// CreateLogEventFunc creates a new log event.
-type CreateLogEventFunc func() log.Event
+// CreateLogProviderFunc creates a new default log provider.
+type CreateLogProviderFunc func() *log.Provider
 
 // Init is a middleware which initialised tracing information and a request scoped log event.
-func Init(getTrace GetTraceFunc) func(CreateLogEventFunc) server.Middleware {
-	return func(createLogEvent CreateLogEventFunc) server.Middleware {
+func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) server.Middleware {
+	return func(createLogProvider CreateLogProviderFunc) server.Middleware {
 		return server.MiddlewareFunc(
 			func(next http.Handler, w http.ResponseWriter, r *http.Request) {
-				// Initialise a new log event for this request pipeline
-				logger := createLogEvent().
-					SetHTTPRequest(r).
-					AddLabel("requestPath", r.URL.Path)
+				// Get a new log provider for this request and set and additional
+				// label for the request path and the request itself:
+				provider := createLogProvider()
+				provider.AddLabel("requestPath", r.URL.Path)
+				provider.SetHTTPRequest(r)
 
-				// Get trace and span IDs for current request
-				traceID, spanID := getTrace(r, logger)
+				// Update the request's context with the new log provider:
+				r = r.WithContext(
+					log.Context(r.Context(),
+						provider))
 
-				// Decorate log event with trace
-				logger = logger.
-					SetTraceID(traceID).
-					SetSpanID(spanID)
-
-				// Store trace and log event data in context
-				ctx := log.Context(r.Context(), logger)
-				ctx = trace.Context(ctx, traceID, spanID)
+				// Get trace and span IDs for current request and
+				// store them in the request's context:
+				traceID, spanID := getTrace(r)
+				r = r.WithContext(
+					trace.Context(r.Context(), traceID, spanID))
 
 				// Log incoming request
-				logger.SetData(struct {
-					Headers map[string][]string
-				}{
-					Headers: r.Header,
-				}).Fmt("%s %s %s", r.Proto, r.Method, request.FullURL(r))
+				log.New(r.Context()).
+					Data("requestHeaders", r.Header).
+					Fmt("%s %s %s", r.Proto, r.Method, request.FullURL(r))
 
 				// Execute next middleware
-				r = r.WithContext(ctx)
 				next.ServeHTTP(w, r)
 			},
 		)
@@ -64,10 +60,11 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 	if len(values) == 1 {
 		// Remove the (optional) sampling parameter
 		traceIDValue := strings.SplitN(values[0], ";", 2)[0]
-
 		traceID, err := trace.ParseID(traceIDValue)
 		if err != nil {
-			return traceID, spanID, fmt.Errorf("failed to parse trace ID: %w", err)
+			return traceID, spanID,
+				fault.SystemWrap(
+					err, "httptrace", "parseGoogleTraceContext", "failed to parse traceID")
 		}
 
 		return traceID, trace.DefaultGenerator.NewSpanID(), nil
@@ -77,7 +74,9 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 	if len(values) == 2 {
 		traceID, err := trace.ParseID(values[0])
 		if err != nil {
-			return traceID, spanID, fmt.Errorf("failed to parse trace ID: %w", err)
+			return traceID, spanID,
+				fault.SystemWrap(
+					err, "httptrace", "parseGoogleTraceContext", "failed to parse traceID")
 		}
 
 		// Remove the (optional) sampling parameter
@@ -85,18 +84,21 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 
 		spanID, err = trace.ParseGoogleCloudSpanID(spanIDValue)
 		if err != nil {
-			return traceID, spanID, fmt.Errorf("failed to parse span ID: %w", err)
+			return traceID, spanID,
+				fault.SystemWrap(
+					err, "httptrace", "parseGoogleTraceContext", "failed to parse spanID")
 		}
 		return traceID, spanID, nil
 	}
 
 	// Bad or no data
-	return traceID, spanID, errors.New("invalid trace value in HTTP header")
+	return traceID, spanID,
+		fault.System("httptrace", "parseGoogleTraceContext", "invalid trace value in HTTP header")
 }
 
 // GoogleCloudTrace initialises tracing using the X-Cloud-Trace-Context HTTP header.
 var GoogleCloudTrace = Init(
-	func(r *http.Request, logger log.Event) (trace.ID, trace.SpanID) {
+	func(r *http.Request) (trace.ID, trace.SpanID) {
 		traceHeader := r.Header.Get("X-Cloud-Trace-Context")
 		if len(traceHeader) == 0 {
 			return trace.DefaultGenerator.NewTraceIDs()
@@ -104,7 +106,10 @@ var GoogleCloudTrace = Init(
 
 		traceID, spanID, err := parseGoogleTraceContext(traceHeader)
 		if err != nil {
-			logger.Alert().SetError(err).Fmt("Invalid X-Cloud-Trace-Context header: %s", traceHeader)
+			log.New(r.Context()).
+				Alert().
+				Err(err).
+				Fmt("Invalid X-Cloud-Trace-Context header: %s", traceHeader)
 			return trace.DefaultGenerator.NewTraceIDs()
 		}
 

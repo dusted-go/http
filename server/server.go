@@ -1,6 +1,8 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // Middleware allows to chain multiple HTTP handlers together.
 type Middleware interface {

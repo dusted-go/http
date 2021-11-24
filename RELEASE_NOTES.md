@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-## 3.0.0
+## 3.0.0-alpha-1
 
 - Added new `server` package
 - Deleted `chain` and `verb` middleware packages.
@@ -9,6 +9,9 @@ Release Notes
 - Refactored all other middleware to adhere to the new server.Middleware interface.
 - Renamed `proxy.GetRealIP` middleware to `proxy.ForwardedHeaders`.
 - Added a new middleware called `proxy.GetRealIP` with new functionality.
+- Removed the `route` package and moved the `ShiftPath` function to `request`.
+- Refactored `assets` package to adhere to the `server.Middleware` interface.
+- Updated the `diagnostic/log` package to the `2.0.0-alpha-*` release.
 
 ## 2.1.0
 
