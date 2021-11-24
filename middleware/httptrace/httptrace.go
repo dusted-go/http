@@ -6,8 +6,8 @@ import (
 
 	"github.com/dusted-go/diagnostic/v2/log"
 	"github.com/dusted-go/diagnostic/v2/trace"
-	"github.com/dusted-go/http/v2/request"
-	"github.com/dusted-go/http/v2/server"
+	"github.com/dusted-go/http/v3/request"
+	"github.com/dusted-go/http/v3/server"
 	"github.com/dusted-go/utils/fault"
 )
 

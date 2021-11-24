@@ -1,4 +1,4 @@
-module github.com/dusted-go/http/v2
+module github.com/dusted-go/http/v3
 
 go 1.17
 

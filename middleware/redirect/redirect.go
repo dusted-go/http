@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/http/v2/request"
-	"github.com/dusted-go/http/v2/server"
+	"github.com/dusted-go/http/v3/request"
+	"github.com/dusted-go/http/v3/server"
 )
 
 // ForceHTTPS is a middleware which redirects http:// requests to https://
