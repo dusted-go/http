@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+## 3.0.0-alpha-2
+
+- Added `Plaintext` method to `response` package.
+- Added `ViewHandler` to `server` package.
+
 ## 3.0.0-alpha-1
 
 - Added new `server` package
