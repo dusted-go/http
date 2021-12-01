@@ -68,8 +68,14 @@ github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWH
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dusted-go/diagnostic/v2 v2.0.0-alpha-3 h1:8SrV7lLWAZEx7IWMrx66liFN6qj3FsWsn8zNam3DJDo=
 github.com/dusted-go/diagnostic/v2 v2.0.0-alpha-3/go.mod h1:BCTcheV9Vfn7sS8FkXpNLdt2WXlsvmFZTv3nvrTJy0Q=
+github.com/dusted-go/diagnostic/v2 v2.0.0-alpha-4 h1:mpNYHJVUuTbli6cL7o1JssUemUAcH8/8uVNCVPaEiXs=
+github.com/dusted-go/diagnostic/v2 v2.0.0-alpha-4/go.mod h1:BCTcheV9Vfn7sS8FkXpNLdt2WXlsvmFZTv3nvrTJy0Q=
+github.com/dusted-go/diagnostic/v2 v2.0.0 h1:J2VuQAlRK4Ex5+p7TjQ5aAaOdgRYFa2VaHYJ+6b1zzE=
+github.com/dusted-go/diagnostic/v2 v2.0.0/go.mod h1:BCTcheV9Vfn7sS8FkXpNLdt2WXlsvmFZTv3nvrTJy0Q=
 github.com/dusted-go/utils v1.1.0 h1:cjjbvTlVTIzgPVEH/sDuGwPdcpwlqDjOuG5GFSysCc8=
 github.com/dusted-go/utils v1.1.0/go.mod h1:mP4yMGknMFaZKUEVdOyCyH4g9Q7frRWRGs+hjLYBj1E=
+github.com/dusted-go/utils v1.2.0 h1:WTXWkWC9yZZv1zW5WcAF2Hv4I+4vqrSrpdgKcqhtXBo=
+github.com/dusted-go/utils v1.2.0/go.mod h1:mP4yMGknMFaZKUEVdOyCyH4g9Q7frRWRGs+hjLYBj1E=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=

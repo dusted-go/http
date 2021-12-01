@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.0.0
+
+- Stable v3 release
+
 ## 3.0.0-alpha-2
 
 - Added `Plaintext` method to `response` package.
