@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.1.0
+
+- Improved the `assets` middleware to set the CSS and JS output files to a static name when `devMode` is switched on.
+
 ## 3.0.0
 
 - Stable v3 release

@@ -59,7 +59,7 @@ func NewMiddleware(
 		cacheDirective: cacheDirective,
 		devMode:        devMode,
 	}
-	if err := mw.initAssets(ctx, dirPath); err != nil {
+	if err := mw.initAssets(ctx, dirPath, devMode); err != nil {
 		return nil, err
 	}
 	return mw, nil
@@ -72,7 +72,7 @@ func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
 		// ---
 		ctx := r.Context()
 		if m.devMode {
-			err := m.initAssets(ctx, m.dirPath)
+			err := m.initAssets(ctx, m.dirPath, m.devMode)
 			if err != nil {
 				panic(err)
 			}
@@ -136,6 +136,7 @@ func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
 func (m *Middleware) initAssets(
 	ctx context.Context,
 	dirPath string,
+	devMode bool,
 ) error {
 	// Bundling:
 	// ---
@@ -237,23 +238,29 @@ func (m *Middleware) initAssets(
 
 	// Versioning:
 	// ---
-	// nolint: gosec // Used for checksums only
-	hash := md5.New()
-	_, err = io.WriteString(hash, cssString)
-	if err != nil {
-		return fault.SystemWrap(err, "assets", "initAssets",
-			"failed to compute MD5 hash of CSS content")
-	}
-	cssVersion := hex.EncodeToString(hash.Sum(nil))
-	cssFileName := "/" + cssVersion + ".css"
+	cssVersion := "output.dev"
+	jsVersion := "output.dev"
 
-	hash.Reset()
-	_, err = io.WriteString(hash, jsString)
-	if err != nil {
-		return fault.SystemWrap(err, "assets", "initAssets",
-			"failed to compute MD5 hash of JavaScript content")
+	if !devMode {
+		// nolint: gosec // Used for checksums only
+		hash := md5.New()
+		_, err = io.WriteString(hash, cssString)
+		if err != nil {
+			return fault.SystemWrap(err, "assets", "initAssets",
+				"failed to compute MD5 hash of CSS content")
+		}
+		cssVersion = hex.EncodeToString(hash.Sum(nil))
+
+		hash.Reset()
+		_, err = io.WriteString(hash, jsString)
+		if err != nil {
+			return fault.SystemWrap(err, "assets", "initAssets",
+				"failed to compute MD5 hash of JavaScript content")
+		}
+		jsVersion = hex.EncodeToString(hash.Sum(nil))
 	}
-	jsVersion := hex.EncodeToString(hash.Sum(nil))
+
+	cssFileName := "/" + cssVersion + ".css"
 	jsFileName := "/" + jsVersion + ".js"
 
 	// Return:
