@@ -3,7 +3,7 @@ package response
 import (
 	"net/http"
 
-	"github.com/dusted-go/utils/fault"
+	"github.com/dusted-go/fault/fault"
 )
 
 // ClearHeaders clears existing HTTP headers from the response.

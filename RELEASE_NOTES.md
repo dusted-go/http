@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+## 3.2.0
+
+- Updated dependencies
+- Updated Go 1.19
+- Recoverer func takes now a stack of type `stack.Trace` instead of a `[]byte`
+
 ## 3.1.0
 
 - Improved the `assets` middleware to set the CSS and JS output files to a static name when `devMode` is switched on.

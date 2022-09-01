@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/dusted-go/diagnostic/v2/log"
-	"github.com/dusted-go/utils/fault"
+	"github.com/dusted-go/fault/fault"
 
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"

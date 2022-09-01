@@ -6,9 +6,9 @@ import (
 
 	"github.com/dusted-go/diagnostic/v2/log"
 	"github.com/dusted-go/diagnostic/v2/trace"
+	"github.com/dusted-go/fault/fault"
 	"github.com/dusted-go/http/v3/request"
 	"github.com/dusted-go/http/v3/server"
-	"github.com/dusted-go/utils/fault"
 )
 
 // GetTraceFunc gets or generates trace IDs from an incoming HTTP request.
