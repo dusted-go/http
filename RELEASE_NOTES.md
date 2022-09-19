@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.3.0
+
+- Broken pipe errors won't surface any longer
+
 ## 3.2.0
 
 - Updated dependencies

@@ -1,8 +1,10 @@
 package server
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
+	"syscall"
 
 	"github.com/dusted-go/fault/fault"
 )
@@ -34,6 +36,13 @@ func (h *ViewHandler) RenderView(
 
 	w.WriteHeader(statusCode)
 	err := t.ExecuteTemplate(w, h.layoutName, model)
+
+	// If the error is a "broken pipe" then ignore it.
+	// (this basically means the connection was aborted/closed by the peer)
+	if errors.Is(err, syscall.EPIPE) {
+		return nil
+	}
+
 	if err != nil {
 		return fault.SystemWrapf(
 			err, "server", "RenderView",
