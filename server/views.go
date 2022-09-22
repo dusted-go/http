@@ -17,6 +17,7 @@ type ViewHandler struct {
 }
 
 func (h *ViewHandler) RenderView(
+	ignoreBrokenPipeErr bool,
 	statusCode int,
 	key string,
 	model interface{},
@@ -39,7 +40,7 @@ func (h *ViewHandler) RenderView(
 
 	// If the error is a "broken pipe" then ignore it.
 	// (this basically means the connection was aborted/closed by the peer)
-	if errors.Is(err, syscall.EPIPE) {
+	if ignoreBrokenPipeErr && errors.Is(err, syscall.EPIPE) {
 		return nil
 	}
 

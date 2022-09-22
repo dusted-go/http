@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.4.0
+
+- Added flag to control the handling of broken pipe errors
+
 ## 3.3.0
 
 - Broken pipe errors won't surface any longer

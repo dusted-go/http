@@ -15,7 +15,12 @@ func ClearHeaders(w http.ResponseWriter) {
 	}
 }
 
+// Plaintext writes a text/plaintext message to the response stream.
+// If the ignoreBrokenPipeErr flag is set to true, then errors resulting
+// from a cancelled/aborted connection (by the peer/client) will not
+// surface from this function.
 func Plaintext(
+	ignoreBrokenPipeErr bool,
 	statusCode int,
 	text string,
 	w http.ResponseWriter,
@@ -27,7 +32,7 @@ func Plaintext(
 
 	// If the error is a "broken pipe" then ignore it.
 	// (this basically means the connection was aborted/closed by the peer)
-	if errors.Is(err, syscall.EPIPE) {
+	if ignoreBrokenPipeErr && errors.Is(err, syscall.EPIPE) {
 		return nil
 	}
 
