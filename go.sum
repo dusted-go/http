@@ -2,6 +2,8 @@ github.com/dusted-go/diagnostic/v2 v2.1.0 h1:1kJyLlQt67j9m53X8LMREICr7J4O6/rv4yh
 github.com/dusted-go/diagnostic/v2 v2.1.0/go.mod h1:87AckFRYP6zy6DC6DRRFzKWcR/Wv5Oj/aM6RHGPrrPo=
 github.com/dusted-go/fault v1.0.0 h1:nKZ7vKxUHXELeqHS1ch2tio0QiThMaA9SffCceMP2Bo=
 github.com/dusted-go/fault v1.0.0/go.mod h1:Lk3b6220V5WGPrLaAaBOpsA7qjogVj5f+76orT9ImCY=
+github.com/dusted-go/fault v1.1.0 h1:9hO7j3Bwh2YNNWtJz72ooW3pD+h2ch7PCe//lXPayBI=
+github.com/dusted-go/fault v1.1.0/go.mod h1:Lk3b6220V5WGPrLaAaBOpsA7qjogVj5f+76orT9ImCY=
 github.com/tdewolff/minify v2.3.6+incompatible h1:2hw5/9ZvxhWLvBUnHE06gElGYz+Jv9R4Eys0XUzItYo=
 github.com/tdewolff/minify v2.3.6+incompatible/go.mod h1:9Ov578KJUmAWpS6NeZwRZyT56Uf6o3Mcz9CEsg8USYs=
 github.com/tdewolff/parse v2.3.4+incompatible h1:x05/cnGwIMf4ceLuDMBOdQ1qGniMoxpP46ghf0Qzh38=

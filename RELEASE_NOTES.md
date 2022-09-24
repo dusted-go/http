@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.5.0
+
+- Upgraded dependencies
+
 ## 3.4.0
 
 - Added flag to control the handling of broken pipe errors
