@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.6.0
+
+- Upgraded dependencies
+
 ## 3.5.0
 
 - Upgraded dependencies
