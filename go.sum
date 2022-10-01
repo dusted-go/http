@@ -1,5 +1,5 @@
-github.com/dusted-go/diagnostic/v2 v2.1.0 h1:1kJyLlQt67j9m53X8LMREICr7J4O6/rv4yhp7RNDGoM=
-github.com/dusted-go/diagnostic/v2 v2.1.0/go.mod h1:87AckFRYP6zy6DC6DRRFzKWcR/Wv5Oj/aM6RHGPrrPo=
+github.com/dusted-go/diagnostic/v3 v3.1.0 h1:ZGG26XHXzMco3s00ZxnjMq2Lpy8e5cKRstJFHHg+1ow=
+github.com/dusted-go/diagnostic/v3 v3.1.0/go.mod h1:5w3R8+izm02E6YU0BlFrZ0oHp8x1yw7/3nSItz9Lanc=
 github.com/dusted-go/fault v1.3.1 h1:3W9V1Yk6oKImhbYpKrSMfOjlSWtjOryK0yNLsoomDfI=
 github.com/dusted-go/fault v1.3.1/go.mod h1:Lk3b6220V5WGPrLaAaBOpsA7qjogVj5f+76orT9ImCY=
 github.com/tdewolff/minify v2.3.6+incompatible h1:2hw5/9ZvxhWLvBUnHE06gElGYz+Jv9R4Eys0XUzItYo=

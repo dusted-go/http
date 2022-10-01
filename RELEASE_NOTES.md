@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.8.0
+
+- Changed `log` to `dlog` after upgrade.
+
 ## 3.7.0
 
 - Upgraded dependencies

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/diagnostic/v2/log"
-	"github.com/dusted-go/diagnostic/v2/trace"
+	"github.com/dusted-go/diagnostic/v3/dlog"
+	"github.com/dusted-go/diagnostic/v3/trace"
 	"github.com/dusted-go/fault/fault"
 	"github.com/dusted-go/http/v3/request"
 	"github.com/dusted-go/http/v3/server"
@@ -15,7 +15,7 @@ import (
 type GetTraceFunc func(r *http.Request) (trace.ID, trace.SpanID)
 
 // CreateLogProviderFunc creates a new default log provider.
-type CreateLogProviderFunc func() *log.Provider
+type CreateLogProviderFunc func() *dlog.Provider
 
 // Init is a middleware which initialised tracing information and a request scoped log event.
 func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) server.Middleware {
@@ -30,7 +30,7 @@ func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) server.Middleware {
 
 				// Update the request's context with the new log provider:
 				r = r.WithContext(
-					log.Context(r.Context(),
+					dlog.Context(r.Context(),
 						provider))
 
 				// Get trace and span IDs for current request and
@@ -40,7 +40,7 @@ func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) server.Middleware {
 					trace.Context(r.Context(), traceID, spanID))
 
 				// Log incoming request
-				log.New(r.Context()).
+				dlog.New(r.Context()).
 					Data("requestHeaders", r.Header).
 					Fmt("%s %s %s", r.Proto, r.Method, request.FullURL(r))
 
@@ -106,7 +106,7 @@ var GoogleCloudTrace = Init(
 
 		traceID, spanID, err := parseGoogleTraceContext(traceHeader)
 		if err != nil {
-			log.New(r.Context()).
+			dlog.New(r.Context()).
 				Alert().
 				Err(err).
 				Fmt("Invalid X-Cloud-Trace-Context header: %s", traceHeader)
