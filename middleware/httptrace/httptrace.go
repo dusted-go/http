@@ -1,12 +1,12 @@
 package httptrace
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/dusted-go/diagnostic/v3/dlog"
 	"github.com/dusted-go/diagnostic/v3/trace"
-	"github.com/dusted-go/fault/fault"
 	"github.com/dusted-go/http/v3/request"
 	"github.com/dusted-go/http/v3/server"
 )
@@ -63,8 +63,7 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 		traceID, err := trace.ParseID(traceIDValue)
 		if err != nil {
 			return traceID, spanID,
-				fault.SystemWrap(
-					err, "httptrace", "parseGoogleTraceContext", "failed to parse traceID")
+				fmt.Errorf("failed to parse Google's trace ID '%s': %w", traceIDValue, err)
 		}
 
 		return traceID, trace.DefaultGenerator.NewSpanID(), nil
@@ -72,28 +71,26 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 
 	// Trace ID and Span ID have been submitted
 	if len(values) == 2 {
-		traceID, err := trace.ParseID(values[0])
+		traceIDValue := values[0]
+		traceID, err := trace.ParseID(traceIDValue)
 		if err != nil {
 			return traceID, spanID,
-				fault.SystemWrap(
-					err, "httptrace", "parseGoogleTraceContext", "failed to parse traceID")
+				fmt.Errorf("failed to parse Google's trace ID '%s': %w", traceIDValue, err)
 		}
 
 		// Remove the (optional) sampling parameter
 		spanIDValue := strings.SplitN(values[1], ";", 2)[0]
-
 		spanID, err = trace.ParseGoogleCloudSpanID(spanIDValue)
 		if err != nil {
 			return traceID, spanID,
-				fault.SystemWrap(
-					err, "httptrace", "parseGoogleTraceContext", "failed to parse spanID")
+				fmt.Errorf("failed to parse Google's span ID '%s': %w", spanIDValue, err)
 		}
 		return traceID, spanID, nil
 	}
 
 	// Bad or no data
 	return traceID, spanID,
-		fault.System("httptrace", "parseGoogleTraceContext", "invalid trace value in HTTP header")
+		fmt.Errorf("unexpected trace value in HTTP header: '%s'", headerValue)
 }
 
 // GoogleCloudTrace initialises tracing using the X-Cloud-Trace-Context HTTP header.

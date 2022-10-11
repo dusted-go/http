@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/dusted-go/diagnostic/v3/dlog"
-	"github.com/dusted-go/fault/fault"
 
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
@@ -195,8 +194,7 @@ func (m *Middleware) initAssets(
 				default:
 					content, err := os.ReadFile(path)
 					if err != nil {
-						return fault.SystemWrapf(err, "assets", "initAssets",
-							"failed to read file %s", path)
+						return fmt.Errorf("error reading asset file '%s': %w", path, err)
 					}
 
 					switch {
@@ -217,7 +215,7 @@ func (m *Middleware) initAssets(
 		})
 
 	if err != nil {
-		return fault.SystemWrap(err, "assets", "initAssets", "error when walking filepath")
+		return fmt.Errorf("error walking filepath '%s': %w", dirPath, err)
 	}
 
 	// Minification:
@@ -228,12 +226,12 @@ func (m *Middleware) initAssets(
 
 	cssString, err := minifier.String("text/css", cssBuilder.String())
 	if err != nil {
-		return fault.SystemWrap(err, "assets", "initAssets", "failed to minify CSS")
+		return fmt.Errorf("error minifying CSS: %w", err)
 	}
 
 	jsString, err := minifier.String("text/javascript", jsBuilder.String())
 	if err != nil {
-		return fault.SystemWrap(err, "assets", "initAssets", "failed to minify JavaScript")
+		return fmt.Errorf("error minifying JavaScript: %w", err)
 	}
 
 	// Versioning:
@@ -246,16 +244,14 @@ func (m *Middleware) initAssets(
 		hash := md5.New()
 		_, err = io.WriteString(hash, cssString)
 		if err != nil {
-			return fault.SystemWrap(err, "assets", "initAssets",
-				"failed to compute MD5 hash of CSS content")
+			return fmt.Errorf("error computing MD5 hash of CSS content: %w", err)
 		}
 		cssVersion = hex.EncodeToString(hash.Sum(nil))
 
 		hash.Reset()
 		_, err = io.WriteString(hash, jsString)
 		if err != nil {
-			return fault.SystemWrap(err, "assets", "initAssets",
-				"failed to compute MD5 hash of JavaScript content")
+			return fmt.Errorf("error computing MD5 hash of JavaScript content: %w", err)
 		}
 		jsVersion = hex.EncodeToString(hash.Sum(nil))
 	}

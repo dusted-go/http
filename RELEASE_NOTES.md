@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+## 3.9.0
+
+- Moved `response` package into `server` package
+- Removed the `ignoreBrokenPipeErr` flags
+- Removed redundant `*http.Request` parameter from functions
+- Simplified error wrapping
+
 ## 3.8.0
 
 - Changed `log` to `dlog` after upgrade.

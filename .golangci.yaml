@@ -4,13 +4,11 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
     - durationcheck
     - errcheck
     - errorlint
     - errname
     - exhaustive
-    - exhaustivestruct
     - exportloopref
     - goconst
     - gofmt
@@ -24,12 +22,10 @@ linters:
     - predeclared
     - revive
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - wastedassign
     - wrapcheck
 linters-settings:

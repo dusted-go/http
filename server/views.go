@@ -1,12 +1,9 @@
 package server
 
 import (
-	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
-	"syscall"
-
-	"github.com/dusted-go/fault/fault"
 )
 
 type ViewHandler struct {
@@ -16,13 +13,11 @@ type ViewHandler struct {
 	templates     map[string]*template.Template
 }
 
-func (h *ViewHandler) RenderView(
-	ignoreBrokenPipeErr bool,
+func (h *ViewHandler) WriteView(
+	w http.ResponseWriter,
 	statusCode int,
 	key string,
 	model interface{},
-	w http.ResponseWriter,
-	r *http.Request,
 ) error {
 	var t *template.Template
 
@@ -38,16 +33,8 @@ func (h *ViewHandler) RenderView(
 	w.WriteHeader(statusCode)
 	err := t.ExecuteTemplate(w, h.layoutName, model)
 
-	// If the error is a "broken pipe" then ignore it.
-	// (this basically means the connection was aborted/closed by the peer)
-	if ignoreBrokenPipeErr && errors.Is(err, syscall.EPIPE) {
-		return nil
-	}
-
 	if err != nil {
-		return fault.SystemWrapf(
-			err, "server", "RenderView",
-			"failed to execute template with key: %s", key)
+		return fmt.Errorf("failed to execute template with key '%s': %w", key, err)
 	}
 	return nil
 }
