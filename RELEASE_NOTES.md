@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+## 3.10.0
+
+- Added `rss` package
+- Added `sitemap` package
+
 ## 3.9.0
 
 - Moved `response` package into `server` package
