@@ -1,10 +1,13 @@
 Release Notes
 =============
 
+## 3.11.0
+
+- Added `sitemap` package
+
 ## 3.10.0
 
 - Added `rss` package
-- Added `sitemap` package
 
 ## 3.9.0
 
