@@ -157,7 +157,7 @@ func (i *Item) SetEnclosure(url string, length int, mimeType string) *Item {
 // SetPubDate indicates when the item was published.
 // If it's a date in the future, aggregators may choose to not display the item until that date.
 func (i *Item) SetPubDate(pubDate time.Time) *Item {
-	i.PubDate = pubDate.Format(time.RFC822)
+	i.PubDate = pubDate.Local().Format(time.RFC822)
 	return i
 }
 
@@ -247,13 +247,13 @@ func (c *Channel) SetWebMaster(email, name string) *Channel {
 
 // SetPubDate indicates when the channel was last updated.
 func (c *Channel) SetPubDate(pubDate time.Time) *Channel {
-	c.PubDate = pubDate.Format(time.RFC822)
+	c.PubDate = pubDate.Local().Format(time.RFC822)
 	return c
 }
 
 // SetLastBuildDate indicates the last time the content of the channel changed.
 func (c *Channel) SetLastBuildDate(lastBuildDate time.Time) *Channel {
-	c.LastBuildDate = lastBuildDate.Format(time.RFC822)
+	c.LastBuildDate = lastBuildDate.Local().Format(time.RFC822)
 	return c
 }
 

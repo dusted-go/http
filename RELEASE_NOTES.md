@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.12.0
+
+- RSS feeds will generate correct RFC-822 date time strings now.
+
 ## 3.11.0
 
 - Added `sitemap` package
