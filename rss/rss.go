@@ -3,7 +3,6 @@ package rss
 import (
 	"encoding/xml"
 	"fmt"
-	"html"
 	"time"
 )
 
@@ -92,7 +91,7 @@ func NewItemWithTitle(title string) *Item {
 // NewItemWithDescription creates an item which represents a "story" -- much like a story in a newspaper or magazine; if so its description is a synopsis of the story, and the link points to the full story. An item may also be complete in itself, if so, the description contains the text (entity-encoded HTML is allowed), and the link and title may be omitted. All elements of an item are optional, however at least one of title or description must be present.
 func NewItemWithDescription(description string) *Item {
 	return &Item{
-		Description: html.EscapeString(description),
+		Description: description,
 	}
 }
 
@@ -104,7 +103,7 @@ func (i *Item) SetTitle(title string) *Item {
 
 // SetDescription sets the item synopsis.
 func (i *Item) SetDescription(description string) *Item {
-	i.Description = html.EscapeString(description)
+	i.Description = description
 	return i
 }
 

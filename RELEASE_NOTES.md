@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.13.0
+
+- Fixed double encoding in RSS descriptions.
+
 ## 3.12.0
 
 - RSS feeds will generate correct RFC-822 date time strings now.
