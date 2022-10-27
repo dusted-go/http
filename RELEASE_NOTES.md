@@ -5,6 +5,8 @@ Release Notes
 
 - Fixed RSS feed date time strings to format correctly according to the spec.
 - Added `atom` package for Atom feeds.
+- Moved `server.ViewHandler` to `view.Handler`
+- Dissolved `server` package
 
 ## 3.13.0
 

@@ -4,15 +4,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/http/v3/server"
+	"github.com/dusted-go/http/v3/middleware"
 )
 
 const https = "https"
 
 // GetRealIP will take the first value which can be found in any of
 // the given headers and then set the request's RemoteAddr with it.
-func GetRealIP(headersToCheck ...string) server.Middleware {
-	return server.MiddlewareFunc(
+func GetRealIP(headersToCheck ...string) middleware.Middleware {
+	return middleware.Func(
 		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 			for _, headerName := range headersToCheck {
 				val := r.Header.Get(headerName)
@@ -31,8 +31,8 @@ func GetRealIP(headersToCheck ...string) server.Middleware {
 //
 // Set the proxyCount to the number of known proxies so that any values
 // set by the origin caller get ignored.
-func ForwardedHeaders(proxyCount int) server.Middleware {
-	return server.MiddlewareFunc(
+func ForwardedHeaders(proxyCount int) middleware.Middleware {
+	return middleware.Func(
 		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 
 			// Populate the URL object for later handlers

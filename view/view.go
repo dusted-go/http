@@ -1,4 +1,4 @@
-package server
+package view
 
 import (
 	"fmt"
@@ -6,14 +6,14 @@ import (
 	"net/http"
 )
 
-type ViewHandler struct {
+type Handler struct {
 	hotReload     bool
 	layoutName    string
 	templateFiles map[string][]string
 	templates     map[string]*template.Template
 }
 
-func (h *ViewHandler) WriteView(
+func (h *Handler) WriteView(
 	w http.ResponseWriter,
 	statusCode int,
 	key string,
@@ -43,14 +43,14 @@ func NewViewHandler(
 	hotReload bool,
 	layoutName string,
 	templateFiles map[string][]string,
-) *ViewHandler {
+) *Handler {
 
 	templates := make(map[string]*template.Template)
 	for key, files := range templateFiles {
 		templates[key] = createTemplate(files...)
 	}
 
-	return &ViewHandler{
+	return &Handler{
 		hotReload:     hotReload,
 		layoutName:    layoutName,
 		templateFiles: templateFiles,

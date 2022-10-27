@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"net/http"
@@ -9,19 +9,19 @@ type Middleware interface {
 	Next(http.Handler) http.HandlerFunc
 }
 
-// MiddlewareFunc implements the Middleware interface on a function
+// Func implements the Middleware interface on a function
 // of type func(http.Handler, http.ResponseWriter, *http.Request).
-type MiddlewareFunc func(http.Handler, http.ResponseWriter, *http.Request)
+type Func func(http.Handler, http.ResponseWriter, *http.Request)
 
-func (f MiddlewareFunc) Next(next http.Handler) http.HandlerFunc {
+func (f Func) Next(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f(next, w, r)
 	}
 }
 
-// CombineMiddlewares chains one or many middlewares into a single middleware.
-func CombineMiddlewares(middlewares ...Middleware) Middleware {
-	return MiddlewareFunc(
+// Chain chains one or many middlewares into a single middleware.
+func Chain(middlewares ...Middleware) Middleware {
+	return Func(
 		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 			for i := len(middlewares) - 1; i >= 0; i-- {
 				m := middlewares[i]

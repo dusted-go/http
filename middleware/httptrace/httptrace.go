@@ -7,8 +7,8 @@ import (
 
 	"github.com/dusted-go/diagnostic/v3/dlog"
 	"github.com/dusted-go/diagnostic/v3/trace"
+	"github.com/dusted-go/http/v3/middleware"
 	"github.com/dusted-go/http/v3/request"
-	"github.com/dusted-go/http/v3/server"
 )
 
 // GetTraceFunc gets or generates trace IDs from an incoming HTTP request.
@@ -18,9 +18,9 @@ type GetTraceFunc func(r *http.Request) (trace.ID, trace.SpanID)
 type CreateLogProviderFunc func() *dlog.Provider
 
 // Init is a middleware which initialised tracing information and a request scoped log event.
-func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) server.Middleware {
-	return func(createLogProvider CreateLogProviderFunc) server.Middleware {
-		return server.MiddlewareFunc(
+func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) middleware.Middleware {
+	return func(createLogProvider CreateLogProviderFunc) middleware.Middleware {
+		return middleware.Func(
 			func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 				// Get a new log provider for this request and set and additional
 				// label for the request path and the request itself:

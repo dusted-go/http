@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/dusted-go/http/v3/middleware"
 	"github.com/dusted-go/http/v3/request"
-	"github.com/dusted-go/http/v3/server"
 )
 
 // ForceHTTPS is a middleware which redirects http:// requests to https://
-func ForceHTTPS(enable bool, hosts ...string) server.Middleware {
-	return server.MiddlewareFunc(
+func ForceHTTPS(enable bool, hosts ...string) middleware.Middleware {
+	return middleware.Func(
 		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 			if enable {
 				isMatch := false
@@ -34,8 +34,8 @@ func ForceHTTPS(enable bool, hosts ...string) server.Middleware {
 
 // TrailingSlash is a middleware which will redirect a matching request with
 // a trailing slash in the path to the same endpoint without a trailing slash.
-func TrailingSlash() server.Middleware {
-	return server.MiddlewareFunc(
+func TrailingSlash() middleware.Middleware {
+	return middleware.Func(
 		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 			path := r.URL.Path
 			redirect :=
@@ -62,8 +62,8 @@ func TrailingSlash() server.Middleware {
 
 // Hosts is a middleware which redirects from one host to another.
 // (e.g. https://www.foo.bar -> https://foo.bar)
-func Hosts(hosts map[string]string, enable bool) server.Middleware {
-	return server.MiddlewareFunc(
+func Hosts(hosts map[string]string, enable bool) middleware.Middleware {
+	return middleware.Func(
 		func(next http.Handler, w http.ResponseWriter, r *http.Request) {
 			if enable {
 				if dest, ok := hosts[r.Host]; ok {
