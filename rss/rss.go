@@ -155,8 +155,10 @@ func (i *Item) SetEnclosure(url string, length int, mimeType string) *Item {
 
 // SetPubDate indicates when the item was published.
 // If it's a date in the future, aggregators may choose to not display the item until that date.
-func (i *Item) SetPubDate(pubDate time.Time) *Item {
-	i.PubDate = pubDate.Local().Format(time.RFC822)
+// The time location must be specified so the date time string
+// can be correctly formatted according to the RSS specification.
+func (i *Item) SetPubDate(pubDate time.Time, loc *time.Location) *Item {
+	i.PubDate = pubDate.In(loc).Format(time.RFC822)
 	return i
 }
 
@@ -245,14 +247,18 @@ func (c *Channel) SetWebMaster(email, name string) *Channel {
 }
 
 // SetPubDate indicates when the channel was last updated.
-func (c *Channel) SetPubDate(pubDate time.Time) *Channel {
-	c.PubDate = pubDate.Local().Format(time.RFC822)
+// The time location must be specified so the date time string
+// can be correctly formatted according to the RSS specification.
+func (c *Channel) SetPubDate(pubDate time.Time, loc *time.Location) *Channel {
+	c.PubDate = pubDate.In(loc).Format(time.RFC822)
 	return c
 }
 
 // SetLastBuildDate indicates the last time the content of the channel changed.
-func (c *Channel) SetLastBuildDate(lastBuildDate time.Time) *Channel {
-	c.LastBuildDate = lastBuildDate.Local().Format(time.RFC822)
+// The time location must be specified so the date time string
+// can be correctly formatted according to the RSS specification.
+func (c *Channel) SetLastBuildDate(lastBuildDate time.Time, loc *time.Location) *Channel {
+	c.LastBuildDate = lastBuildDate.In(loc).Format(time.RFC822)
 	return c
 }
 

@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.14.0
+
+- Fixed RSS feed date time strings to format correctly according to the spec.
+
 ## 3.13.0
 
 - Fixed double encoding in RSS descriptions.
