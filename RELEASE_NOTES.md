@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+## 3.15.0
+
+- `view.NewViewHandler` becomes `view.NewHandler`
+- Added `atom.NewHtML` alongside `atom.NewText`
+
 ## 3.14.0
 
 - Fixed RSS feed date time strings to format correctly according to the spec.

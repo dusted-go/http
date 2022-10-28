@@ -39,7 +39,7 @@ func (h *Handler) WriteView(
 	return nil
 }
 
-func NewViewHandler(
+func NewHandler(
 	hotReload bool,
 	layoutName string,
 	templateFiles map[string][]string,

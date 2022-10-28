@@ -15,7 +15,7 @@ type Link struct {
 	Type     string `xml:"type,attr,omitempty"`
 	HrefLang string `xml:"hreflang,attr,omitempty"`
 	Title    string `xml:"title,attr,omitempty"`
-	Length   string `xml:"length,attr,omitempty"`
+	Length   int    `xml:"length,attr,omitempty"`
 }
 
 // NewLink creates a new Atom link.
@@ -60,7 +60,7 @@ func (l *Link) SetTitle(title string) *Link {
 }
 
 // SetLength sets the length of the resource, in bytes.
-func (l *Link) SetLength(length string) *Link {
+func (l *Link) SetLength(length int) *Link {
 	l.Length = length
 	return l
 }
@@ -175,10 +175,14 @@ type Text struct {
 	Body string `xml:",chardata"`
 }
 
-// NewText creates a new Atom text.
-// The type can be either "text" or "html".
+// NewText creates a new Atom text element of type 'text'.
 func NewText(textType, body string) *Text {
-	return &Text{Type: textType, Body: body}
+	return &Text{Type: "text", Body: body}
+}
+
+// NewHTML creates a new Atom text element of type 'html'.
+func NewHTML(textType, body string) *Text {
+	return &Text{Type: "html", Body: body}
 }
 
 type Entry struct {
