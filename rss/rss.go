@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+const (
+	RSSTimeFormat = "Mon, 02 Jan 2006 15:04:05 -0700"
+)
+
 type Image struct {
 	// Required elements
 	URL   string `xml:"url,omitempty"`
@@ -158,7 +162,7 @@ func (i *Item) SetEnclosure(url string, length int, mimeType string) *Item {
 // The time location must be specified so the date time string
 // can be correctly formatted according to the RSS specification.
 func (i *Item) SetPubDate(pubDate time.Time, loc *time.Location) *Item {
-	i.PubDate = pubDate.In(loc).Format(time.RFC822)
+	i.PubDate = pubDate.In(loc).Format(RSSTimeFormat)
 	return i
 }
 
@@ -250,7 +254,7 @@ func (c *Channel) SetWebMaster(email, name string) *Channel {
 // The time location must be specified so the date time string
 // can be correctly formatted according to the RSS specification.
 func (c *Channel) SetPubDate(pubDate time.Time, loc *time.Location) *Channel {
-	c.PubDate = pubDate.In(loc).Format(time.RFC822)
+	c.PubDate = pubDate.In(loc).Format(RSSTimeFormat)
 	return c
 }
 
@@ -258,7 +262,7 @@ func (c *Channel) SetPubDate(pubDate time.Time, loc *time.Location) *Channel {
 // The time location must be specified so the date time string
 // can be correctly formatted according to the RSS specification.
 func (c *Channel) SetLastBuildDate(lastBuildDate time.Time, loc *time.Location) *Channel {
-	c.LastBuildDate = lastBuildDate.In(loc).Format(time.RFC822)
+	c.LastBuildDate = lastBuildDate.In(loc).Format(RSSTimeFormat)
 	return c
 }
 

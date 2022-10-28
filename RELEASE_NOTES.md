@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.17.0
+
+- Another change to the RSS date format
+
 ## 3.16.0
 
 - Removed redundant `textType` parameter from `atom.NewText` and `atom.NewHTML`
