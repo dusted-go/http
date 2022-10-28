@@ -15,7 +15,7 @@ func Test_AtomFeed(t *testing.T) {
 	pubTime, _ := time.Parse(time.RFC3339, "2022-10-27T22:07:58+01:00")
 	feed := NewFeed(
 		"https://example.org/feed.atom",
-		NewText("text", "Example Feed"),
+		NewText("Example Feed"),
 		pubTime).
 		SetAuthor(
 			NewPerson("John Doe").
@@ -26,19 +26,19 @@ func Test_AtomFeed(t *testing.T) {
 				SetURI("https://example.org/unit-test").
 				SetVersion("v1")).
 		SetRights(
-			NewText("text", "Copyright © 2021 Example.org")).
+			NewText("Copyright © 2021 Example.org")).
 		AddEntry(
 			NewEntry(
 				"https://example.org/entry/1",
-				NewText("text", "Entry 1"),
+				NewText("Entry 1"),
 				pubTime).
-				SetContent(NewText("text", "Entry 1 Content"))).
+				SetContent(NewText("Entry 1 Content"))).
 		AddEntry(
 			NewEntry(
 				"https://example.org/entry/2",
-				NewText("text", "Entry 2"),
+				NewText("Entry 2"),
 				pubTime).
-				SetContent(NewText("text", "Entry 2 Content")))
+				SetContent(NewText("Entry 2 Content")))
 
 	bytes, err := feed.ToXML(true, true)
 	if err != nil {

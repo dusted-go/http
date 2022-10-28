@@ -176,12 +176,12 @@ type Text struct {
 }
 
 // NewText creates a new Atom text element of type 'text'.
-func NewText(textType, body string) *Text {
+func NewText(body string) *Text {
 	return &Text{Type: "text", Body: body}
 }
 
 // NewHTML creates a new Atom text element of type 'html'.
-func NewHTML(textType, body string) *Text {
+func NewHTML(body string) *Text {
 	return &Text{Type: "html", Body: body}
 }
 

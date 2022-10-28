@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.16.0
+
+- Removed redundant `textType` parameter from `atom.NewText` and `atom.NewHTML`
+
 ## 3.15.0
 
 - `view.NewViewHandler` becomes `view.NewHandler`
