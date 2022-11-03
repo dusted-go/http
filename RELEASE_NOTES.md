@@ -1,6 +1,10 @@
 Release Notes
 =============
 
+## 3.18.0
+
+- Added security header middleware and response helper.
+
 ## 3.17.0
 
 - Another change to the RSS date format
