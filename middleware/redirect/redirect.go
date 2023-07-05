@@ -8,18 +8,23 @@ import (
 	"github.com/dusted-go/http/v4/middleware"
 )
 
+const (
+	httpsProto = "https"
+	httpProto  = "http"
+)
+
 func isHTTPS(r *http.Request) bool {
 	return strings.HasPrefix(r.Proto, "HTTP") &&
-		(r.TLS != nil || strings.ToLower(r.Header.Get("X-Forwarded-Proto")) == "https")
+		(r.TLS != nil || strings.ToLower(r.Header.Get("X-Forwarded-Proto")) == httpsProto)
 }
 
 func fullURL(r *http.Request, desiredScheme string) string {
 	scheme := desiredScheme
 	if scheme == "" {
 		if isHTTPS(r) {
-			scheme = "https"
+			scheme = httpsProto
 		} else {
-			scheme = "http"
+			scheme = httpProto
 		}
 	}
 
@@ -54,7 +59,7 @@ func ForceHTTPS(enable bool, hosts ...string) middleware.Middleware {
 				}
 				redirect := isMatch && !isHTTPS(r)
 				if redirect {
-					url := fullURL(r, "https")
+					url := fullURL(r, httpsProto)
 					http.Redirect(w, r, url, 301)
 					return
 				}
@@ -75,9 +80,9 @@ func TrailingSlash() middleware.Middleware {
 					path[len(path)-1] == '/' // Must have trailing slash
 
 			if redirect {
-				scheme := "http"
+				scheme := httpProto
 				if isHTTPS(r) {
-					scheme = "https"
+					scheme = httpsProto
 				}
 				url := fmt.Sprintf("%s://%s%s", scheme, r.Host, path[:len(path)-1])
 				if r.URL.RawQuery != "" {
