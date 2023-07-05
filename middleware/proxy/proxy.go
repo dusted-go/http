@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/http/v3/middleware"
+	"github.com/dusted-go/http/v4/middleware"
 )
 
 const https = "https"

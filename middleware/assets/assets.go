@@ -1,7 +1,6 @@
 package assets
 
 import (
-	"context"
 	"crypto/md5" // nolint: gosec // Only used for asset hashing
 	"encoding/hex"
 	"fmt"
@@ -10,8 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/dusted-go/diagnostic/v3/dlog"
 
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
@@ -36,13 +33,14 @@ type Middleware struct {
 	dirPath        string
 	cacheDirective string
 	devMode        bool
+	verbose        bool
 }
 
 func NewMiddleware(
-	ctx context.Context,
 	dirPath string,
 	cacheDirective string,
 	devMode bool,
+	verbose bool,
 ) (*Middleware, error) {
 	mw := &Middleware{
 		CSS: &Bundle{
@@ -57,8 +55,9 @@ func NewMiddleware(
 		dirPath:        dirPath,
 		cacheDirective: cacheDirective,
 		devMode:        devMode,
+		verbose:        verbose,
 	}
-	if err := mw.initAssets(ctx, dirPath, devMode); err != nil {
+	if err := mw.initAssets(dirPath, devMode, verbose); err != nil {
 		return nil, err
 	}
 	return mw, nil
@@ -69,9 +68,8 @@ func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
 
 		// During development hot reload assets:
 		// ---
-		ctx := r.Context()
 		if m.devMode {
-			err := m.initAssets(ctx, m.dirPath, m.devMode)
+			err := m.initAssets(m.dirPath, m.devMode, m.verbose)
 			if err != nil {
 				panic(err)
 			}
@@ -88,7 +86,7 @@ func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
 			w.Header().Add("Content-Type", "text/css")
 			_, err := w.Write(m.CSS.Contents)
 			if err != nil {
-				dlog.New(ctx).Error().Err(err).Msg("Failed to respond with CSS content.")
+				panic(fmt.Errorf("error responding with CSS content: %w", err))
 			}
 			return
 		}
@@ -102,12 +100,12 @@ func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
 			w.Header().Add("Content-Type", "text/javascript")
 			_, err := w.Write(m.JS.Contents)
 			if err != nil {
-				dlog.New(ctx).Error().Err(err).Msg("Failed to respond with JavaScript content.")
+				panic(fmt.Errorf("error responding with JS content: %w", err))
 			}
 			return
 		}
 
-		// All other files (images, icons, webmanifests, etc.):
+		// All other files (images, icons, web manifests, etc.):
 		// ---
 		if asset, ok := m.files[path]; ok {
 			f, err := os.Open(asset.PhysicalFileName)
@@ -133,10 +131,16 @@ func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
 }
 
 func (m *Middleware) initAssets(
-	ctx context.Context,
 	dirPath string,
 	devMode bool,
+	verbose bool,
 ) error {
+	var log = func(format string, msg string) {
+		if verbose {
+			fmt.Println(fmt.Sprintf(format, msg))
+		}
+	}
+
 	// Bundling:
 	// ---
 	cssBuilder := strings.Builder{}
@@ -156,37 +160,43 @@ func (m *Middleware) initAssets(
 
 				switch {
 				case strings.HasSuffix(path, ".svg"):
-					dlog.New(ctx).Debug().Fmt("Indexing key %s", key)
+					log("Indexing key %s", key)
 					files[key] = file{
 						PhysicalFileName: path,
 						ContentType:      "image/svg+xml",
 					}
 				case strings.HasSuffix(path, ".png"):
-					dlog.New(ctx).Debug().Fmt("Indexing key %s", key)
+					log("Indexing key %s", key)
 					files[key] = file{
 						PhysicalFileName: path,
 						ContentType:      "image/png",
 					}
 				case strings.HasSuffix(path, ".jpg"):
-					dlog.New(ctx).Debug().Fmt("Indexing key %s", key)
+					log("Indexing key %s", key)
 					files[key] = file{
 						PhysicalFileName: path,
 						ContentType:      "image/jpg",
 					}
 				case strings.HasSuffix(path, ".ico"):
-					dlog.New(ctx).Debug().Fmt("Indexing key %s", key)
+					log("Indexing key %s", key)
 					files[key] = file{
 						PhysicalFileName: path,
 						ContentType:      "image/x-icon",
 					}
+				case strings.HasSuffix(path, ".txt"):
+					log("Indexing key %s", key)
+					files[key] = file{
+						PhysicalFileName: path,
+						ContentType:      "text/plain",
+					}
 				case strings.HasSuffix(path, ".xml"):
-					dlog.New(ctx).Debug().Fmt("Indexing key %s", key)
+					log("Indexing key %s", key)
 					files[key] = file{
 						PhysicalFileName: path,
 						ContentType:      "application/xml",
 					}
 				case strings.HasSuffix(path, ".json") || strings.HasSuffix(path, ".webmanifest"):
-					dlog.New(ctx).Debug().Fmt("Indexing key %s", key)
+					log("Indexing key %s", key)
 					files[key] = file{
 						PhysicalFileName: path,
 						ContentType:      "application/json",
@@ -199,11 +209,11 @@ func (m *Middleware) initAssets(
 
 					switch {
 					case strings.HasSuffix(path, ".css"):
-						dlog.New(ctx).Debug().Fmt("Bundling and minifying %s", path)
+						log("Bundling and minifying %s", path)
 						cssBuilder.Write(content)
 						cssBuilder.WriteString("\n\n")
 					case strings.HasSuffix(path, ".js"):
-						dlog.New(ctx).Debug().Fmt("Bundling and minifying %s", path)
+						log("Bundling and minifying %s", path)
 						jsBuilder.Write(content)
 						jsBuilder.WriteString("\n\n")
 					default:
@@ -273,13 +283,3 @@ func (m *Middleware) initAssets(
 
 	return nil
 }
-
-// LogFilter is a dlog.Filter which filters logs during asset initialisation.
-var LogFilter = dlog.FilterFunc(func(msg string) bool {
-	return !(strings.HasPrefix(msg, "HTTP/1.1 ") &&
-		(strings.HasSuffix(msg, ".css") ||
-			strings.HasSuffix(msg, ".js") ||
-			strings.HasSuffix(msg, ".svg") ||
-			strings.HasSuffix(msg, ".jpg") ||
-			strings.HasSuffix(msg, ".png")))
-})

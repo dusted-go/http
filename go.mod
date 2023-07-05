@@ -1,10 +1,9 @@
-module github.com/dusted-go/http/v3
+module github.com/dusted-go/http/v4
 
-go 1.19
+go 1.20
 
 require (
 	github.com/dusted-go/diagnostic/v3 v3.1.0
-	github.com/dusted-go/fault v1.4.0
 	github.com/tdewolff/minify v2.3.6+incompatible
 )
 

@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+## 4.0.0
+
+- Removed `response` package
+- Removed `request` package
+- Added `webfile` package
+- Renamed `path` package to `route`
+- Moved `atom`, `rss` and `sitemap` under `feeds/*`
+
 ## 3.18.0
 
 - Added security header middleware and response helper.

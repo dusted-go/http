@@ -7,9 +7,40 @@ import (
 
 	"github.com/dusted-go/diagnostic/v3/dlog"
 	"github.com/dusted-go/diagnostic/v3/trace"
-	"github.com/dusted-go/http/v3/middleware"
-	"github.com/dusted-go/http/v3/request"
+	"github.com/dusted-go/http/v4/middleware"
 )
+
+func isHTTPS(r *http.Request) bool {
+	return strings.HasPrefix(r.Proto, "HTTP") &&
+		(r.TLS != nil || strings.ToLower(r.Header.Get("X-Forwarded-Proto")) == "https")
+}
+
+func fullURL(r *http.Request, desiredScheme string) string {
+	scheme := desiredScheme
+	if scheme == "" {
+		if isHTTPS(r) {
+			scheme = "https"
+		} else {
+			scheme = "http"
+		}
+	}
+
+	pathAndQuery := r.RequestURI
+	if pathAndQuery == "" {
+		pathAndQuery = r.URL.Path
+		if r.URL.User.String() != "" {
+			pathAndQuery = r.URL.User.String() + "@" + pathAndQuery
+		}
+		if r.URL.RawQuery != "" {
+			pathAndQuery += "?" + r.URL.RawQuery
+		}
+		if r.URL.Fragment != "" {
+			pathAndQuery += "#" + r.URL.Fragment
+		}
+	}
+
+	return fmt.Sprintf("%s://%s%s", scheme, r.Host, pathAndQuery)
+}
 
 // GetTraceFunc gets or generates trace IDs from an incoming HTTP request.
 type GetTraceFunc func(r *http.Request) (trace.ID, trace.SpanID)
@@ -42,7 +73,7 @@ func Init(getTrace GetTraceFunc) func(CreateLogProviderFunc) middleware.Middlewa
 				// Log incoming request
 				dlog.New(r.Context()).
 					Data("requestHeaders", r.Header).
-					Fmt("%s %s %s", r.Proto, r.Method, request.FullURL(r))
+					Fmt("%s %s %s", r.Proto, r.Method, fullURL(r, ""))
 
 				// Execute next middleware
 				next.ServeHTTP(w, r)
@@ -63,7 +94,7 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 		traceID, err := trace.ParseID(traceIDValue)
 		if err != nil {
 			return traceID, spanID,
-				fmt.Errorf("failed to parse Google's trace ID '%s': %w", traceIDValue, err)
+				fmt.Errorf("error parsing Google's trace ID '%s': %w", traceIDValue, err)
 		}
 
 		return traceID, trace.DefaultGenerator.NewSpanID(), nil
@@ -75,7 +106,7 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 		traceID, err := trace.ParseID(traceIDValue)
 		if err != nil {
 			return traceID, spanID,
-				fmt.Errorf("failed to parse Google's trace ID '%s': %w", traceIDValue, err)
+				fmt.Errorf("error parsing Google's trace ID '%s': %w", traceIDValue, err)
 		}
 
 		// Remove the (optional) sampling parameter
@@ -83,7 +114,7 @@ func parseGoogleTraceContext(headerValue string) (trace.ID, trace.SpanID, error)
 		spanID, err = trace.ParseGoogleCloudSpanID(spanIDValue)
 		if err != nil {
 			return traceID, spanID,
-				fmt.Errorf("failed to parse Google's span ID '%s': %w", spanIDValue, err)
+				fmt.Errorf("error parsing Google's span ID '%s': %w", spanIDValue, err)
 		}
 		return traceID, spanID, nil
 	}

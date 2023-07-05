@@ -1,5 +1,11 @@
 package view
 
+// www
+// web
+// www.ViewHandler
+// web.ViewHandler
+//
+
 import (
 	"fmt"
 	"html/template"
@@ -34,7 +40,7 @@ func (h *Handler) WriteView(
 	err := t.ExecuteTemplate(w, h.layoutName, model)
 
 	if err != nil {
-		return fmt.Errorf("failed to execute template with key '%s': %w", key, err)
+		return fmt.Errorf("error executing template with key '%s': %w", key, err)
 	}
 	return nil
 }

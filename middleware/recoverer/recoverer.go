@@ -4,12 +4,11 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/dusted-go/fault/stack"
-	"github.com/dusted-go/http/v3/middleware"
+	"github.com/dusted-go/http/v4/middleware"
 )
 
 // RecoverFunc responds to a HTTP request which ended up panicking.
-type RecoverFunc func(recovered interface{}, stack stack.Trace) http.HandlerFunc
+type RecoverFunc func(recovered any) http.HandlerFunc
 
 // HandlePanics is a middleware which handles a panic and recovers gracefully by calling the RecovererFunc.
 func HandlePanics(f RecoverFunc) middleware.Middleware {
@@ -18,8 +17,7 @@ func HandlePanics(f RecoverFunc) middleware.Middleware {
 			defer func() {
 				if recovered := recover(); recovered != nil {
 					if err, ok := recovered.(error); !ok || !errors.Is(err, http.ErrAbortHandler) {
-						stackTrace := stack.Capture()
-						f(recovered, *stackTrace)(w, r)
+						f(recovered)(w, r)
 					}
 				}
 			}()

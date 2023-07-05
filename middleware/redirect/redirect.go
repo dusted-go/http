@@ -5,9 +5,40 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dusted-go/http/v3/middleware"
-	"github.com/dusted-go/http/v3/request"
+	"github.com/dusted-go/http/v4/middleware"
 )
+
+func isHTTPS(r *http.Request) bool {
+	return strings.HasPrefix(r.Proto, "HTTP") &&
+		(r.TLS != nil || strings.ToLower(r.Header.Get("X-Forwarded-Proto")) == "https")
+}
+
+func fullURL(r *http.Request, desiredScheme string) string {
+	scheme := desiredScheme
+	if scheme == "" {
+		if isHTTPS(r) {
+			scheme = "https"
+		} else {
+			scheme = "http"
+		}
+	}
+
+	pathAndQuery := r.RequestURI
+	if pathAndQuery == "" {
+		pathAndQuery = r.URL.Path
+		if r.URL.User.String() != "" {
+			pathAndQuery = r.URL.User.String() + "@" + pathAndQuery
+		}
+		if r.URL.RawQuery != "" {
+			pathAndQuery += "?" + r.URL.RawQuery
+		}
+		if r.URL.Fragment != "" {
+			pathAndQuery += "#" + r.URL.Fragment
+		}
+	}
+
+	return fmt.Sprintf("%s://%s%s", scheme, r.Host, pathAndQuery)
+}
 
 // ForceHTTPS is a middleware which redirects http:// requests to https://
 func ForceHTTPS(enable bool, hosts ...string) middleware.Middleware {
@@ -21,9 +52,9 @@ func ForceHTTPS(enable bool, hosts ...string) middleware.Middleware {
 						break
 					}
 				}
-				redirect := isMatch && !request.IsHTTPS(r)
+				redirect := isMatch && !isHTTPS(r)
 				if redirect {
-					url := request.HTTPSURL(r)
+					url := fullURL(r, "https")
 					http.Redirect(w, r, url, 301)
 					return
 				}
@@ -45,7 +76,7 @@ func TrailingSlash() middleware.Middleware {
 
 			if redirect {
 				scheme := "http"
-				if request.IsHTTPS(r) {
+				if isHTTPS(r) {
 					scheme = "https"
 				}
 				url := fmt.Sprintf("%s://%s%s", scheme, r.Host, path[:len(path)-1])
@@ -68,7 +99,7 @@ func Hosts(hosts map[string]string, enable bool) middleware.Middleware {
 			if enable {
 				if dest, ok := hosts[r.Host]; ok {
 					r.Host = dest
-					url := request.FullURL(r)
+					url := fullURL(r, "")
 					http.Redirect(w, r, url, 301)
 					return
 				}
