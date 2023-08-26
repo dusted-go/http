@@ -25,7 +25,9 @@ type Bundle struct {
 	Contents        []byte
 }
 
-type Middleware struct {
+type Handler struct {
+	next http.Handler
+
 	CSS *Bundle
 	JS  *Bundle
 
@@ -36,13 +38,15 @@ type Middleware struct {
 	verbose        bool
 }
 
-func NewMiddleware(
+func NewHandler(
+	next http.Handler,
 	dirPath string,
 	cacheDirective string,
 	devMode bool,
 	verbose bool,
-) (*Middleware, error) {
-	mw := &Middleware{
+) (*Handler, error) {
+	h := &Handler{
+		next: next,
 		CSS: &Bundle{
 			VirtualFileName: "",
 			Contents:        []byte{},
@@ -57,80 +61,76 @@ func NewMiddleware(
 		devMode:        devMode,
 		verbose:        verbose,
 	}
-	if err := mw.initAssets(dirPath, devMode, verbose); err != nil {
+	if err := h.initAssets(dirPath, devMode, verbose); err != nil {
 		return nil, err
 	}
-	return mw, nil
+	return h, nil
 }
 
-func (m *Middleware) Next(next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		// During development hot reload assets:
-		// ---
-		if m.devMode {
-			err := m.initAssets(m.dirPath, m.devMode, m.verbose)
-			if err != nil {
-				panic(err)
-			}
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// During development hot reload assets:
+	// ---
+	if h.devMode {
+		err := h.initAssets(h.dirPath, h.devMode, h.verbose)
+		if err != nil {
+			panic(err)
 		}
-
-		path := r.URL.Path
-
-		// CSS request:
-		// ---
-		if path == m.CSS.VirtualFileName {
-			if !m.devMode {
-				w.Header().Add("Cache-Control", m.cacheDirective)
-			}
-			w.Header().Add("Content-Type", "text/css")
-			_, err := w.Write(m.CSS.Contents)
-			if err != nil {
-				panic(fmt.Errorf("error responding with CSS content: %w", err))
-			}
-			return
-		}
-
-		// JS request:
-		// ---
-		if path == m.JS.VirtualFileName {
-			if !m.devMode {
-				w.Header().Add("Cache-Control", m.cacheDirective)
-			}
-			w.Header().Add("Content-Type", "text/javascript")
-			_, err := w.Write(m.JS.Contents)
-			if err != nil {
-				panic(fmt.Errorf("error responding with JS content: %w", err))
-			}
-			return
-		}
-
-		// All other files (images, icons, web manifests, etc.):
-		// ---
-		if asset, ok := m.files[path]; ok {
-			f, err := os.Open(asset.PhysicalFileName)
-			if err != nil {
-				panic(err)
-			}
-			defer f.Close()
-			if !m.devMode {
-				w.Header().Add("Cache-Control", m.cacheDirective)
-			}
-			w.Header().Add("Content-Type", asset.ContentType)
-			_, err = io.Copy(w, f)
-			if err != nil {
-				panic(err)
-			}
-			return
-		}
-
-		// If no match then proceed with other middleware:
-		// ---
-		next.ServeHTTP(w, r)
 	}
+	path := r.URL.Path
+
+	// CSS request:
+	// ---
+	if path == h.CSS.VirtualFileName {
+		if !h.devMode {
+			w.Header().Add("Cache-Control", h.cacheDirective)
+		}
+		w.Header().Add("Content-Type", "text/css")
+		_, err := w.Write(h.CSS.Contents)
+		if err != nil {
+			panic(fmt.Errorf("error responding with CSS content: %w", err))
+		}
+		return
+	}
+
+	// JS request:
+	// ---
+	if path == h.JS.VirtualFileName {
+		if !h.devMode {
+			w.Header().Add("Cache-Control", h.cacheDirective)
+		}
+		w.Header().Add("Content-Type", "text/javascript")
+		_, err := w.Write(h.JS.Contents)
+		if err != nil {
+			panic(fmt.Errorf("error responding with JS content: %w", err))
+		}
+		return
+	}
+
+	// All other files (images, icons, web manifests, etc.):
+	// ---
+	if asset, ok := h.files[path]; ok {
+		f, err := os.Open(asset.PhysicalFileName)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		if !h.devMode {
+			w.Header().Add("Cache-Control", h.cacheDirective)
+		}
+		w.Header().Add("Content-Type", asset.ContentType)
+		_, err = io.Copy(w, f)
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	// If no match then proceed with other middleware:
+	// ---
+	h.next.ServeHTTP(w, r)
 }
 
-func (m *Middleware) initAssets(
+func (h *Handler) initAssets(
 	dirPath string,
 	devMode bool,
 	verbose bool,
@@ -271,15 +271,15 @@ func (m *Middleware) initAssets(
 
 	// Return:
 	// ---
-	m.CSS = &Bundle{
+	h.CSS = &Bundle{
 		VirtualFileName: cssFileName,
 		Contents:        []byte(cssString),
 	}
-	m.JS = &Bundle{
+	h.JS = &Bundle{
 		VirtualFileName: jsFileName,
 		Contents:        []byte(jsString),
 	}
-	m.files = files
+	h.files = files
 
 	return nil
 }

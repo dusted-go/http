@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+## 5.0.0
+
+- Removed `middleware` package
+- Removed `httptrace` package
+- Renamed `view` to `htmlview`
+
 ## 4.0.0
 
 - Removed `response` package

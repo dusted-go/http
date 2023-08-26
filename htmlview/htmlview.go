@@ -1,10 +1,4 @@
-package view
-
-// www
-// web
-// www.ViewHandler
-// web.ViewHandler
-//
+package htmlview
 
 import (
 	"fmt"
@@ -12,14 +6,14 @@ import (
 	"net/http"
 )
 
-type Handler struct {
+type Writer struct {
 	hotReload     bool
 	layoutName    string
 	templateFiles map[string][]string
 	templates     map[string]*template.Template
 }
 
-func (h *Handler) WriteView(
+func (hw *Writer) WriteView(
 	w http.ResponseWriter,
 	statusCode int,
 	key string,
@@ -30,14 +24,14 @@ func (h *Handler) WriteView(
 	// In production settings use pre-created templates,
 	// otherwise create a new template every time during
 	// for a faster feedback loop during development:
-	if h.hotReload {
-		t = createTemplate(h.templateFiles[key]...)
+	if hw.hotReload {
+		t = createTemplate(hw.templateFiles[key]...)
 	} else {
-		t = h.templates[key]
+		t = hw.templates[key]
 	}
 
 	w.WriteHeader(statusCode)
-	err := t.ExecuteTemplate(w, h.layoutName, model)
+	err := t.ExecuteTemplate(w, hw.layoutName, model)
 
 	if err != nil {
 		return fmt.Errorf("error executing template with key '%s': %w", key, err)
@@ -45,18 +39,18 @@ func (h *Handler) WriteView(
 	return nil
 }
 
-func NewHandler(
+func NewWriter(
 	hotReload bool,
 	layoutName string,
 	templateFiles map[string][]string,
-) *Handler {
+) *Writer {
 
 	templates := make(map[string]*template.Template)
 	for key, files := range templateFiles {
 		templates[key] = createTemplate(files...)
 	}
 
-	return &Handler{
+	return &Writer{
 		hotReload:     hotReload,
 		layoutName:    layoutName,
 		templateFiles: templateFiles,
