@@ -44,26 +44,32 @@ func fullURL(r *http.Request, desiredScheme string) string {
 }
 
 // ForceHTTPS is a middleware which redirects http:// requests to https://
-func ForceHTTPS(next http.Handler, enable bool, hosts ...string) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			if enable {
-				isMatch := false
-				for _, h := range hosts {
-					if h == r.Host {
-						isMatch = true
-						break
+func ForceHTTPS(
+	enable bool,
+	hosts ...string,
+) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				if enable {
+					isMatch := false
+					for _, h := range hosts {
+						if h == r.Host {
+							isMatch = true
+							break
+						}
+					}
+					redirect := isMatch && !isHTTPS(r)
+					if redirect {
+						url := fullURL(r, httpsProto)
+						http.Redirect(w, r, url, 301)
+						return
 					}
 				}
-				redirect := isMatch && !isHTTPS(r)
-				if redirect {
-					url := fullURL(r, httpsProto)
-					http.Redirect(w, r, url, 301)
-					return
-				}
-			}
-			next.ServeHTTP(w, r)
-		})
+				next.ServeHTTP(w, r)
+			},
+		)
+	}
 }
 
 // TrailingSlash is a middleware which will redirect a matching request with
@@ -91,22 +97,29 @@ func TrailingSlash(next http.Handler) http.Handler {
 			}
 
 			next.ServeHTTP(w, r)
-		})
+		},
+	)
 }
 
 // Hosts is a middleware which redirects from one host to another.
 // (e.g. https://www.foo.bar -> https://foo.bar)
-func Hosts(next http.Handler, hosts map[string]string, enable bool) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			if enable {
-				if dest, ok := hosts[r.Host]; ok {
-					r.Host = dest
-					url := fullURL(r, "")
-					http.Redirect(w, r, url, 301)
-					return
+func Hosts(
+	hosts map[string]string,
+	enable bool,
+) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				if enable {
+					if dest, ok := hosts[r.Host]; ok {
+						r.Host = dest
+						url := fullURL(r, "")
+						http.Redirect(w, r, url, 301)
+						return
+					}
 				}
-			}
-			next.ServeHTTP(w, r)
-		})
+				next.ServeHTTP(w, r)
+			},
+		)
+	}
 }

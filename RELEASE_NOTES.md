@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+## 6.0.0
+
+- Added `firewall` middleware
+- Added `health` middleware
+- Added `mware` pkg
+- Changed signature of middlewares
+
 ## 5.0.0
 
 - Removed `middleware` package

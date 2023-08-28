@@ -1,4 +1,4 @@
-module github.com/dusted-go/http/v5
+module github.com/dusted-go/http/v6
 
 go 1.18
 
