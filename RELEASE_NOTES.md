@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+## 6.1.0
+
+- Small fix in `mware`
+- Renamed middleware in `healthz`
+
 ## 6.0.0
 
 - Added `firewall` middleware

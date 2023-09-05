@@ -1,11 +1,11 @@
-package health
+package healthz
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func PingPong(next http.Handler) http.Handler {
+func LivenessProbe(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/ping" {

@@ -6,7 +6,9 @@ func Bind(middlewares ...func(http.Handler) http.Handler) func(http.Handler) htt
 	return func(next http.Handler) http.Handler {
 		for i := len(middlewares) - 1; i >= 0; i-- {
 			middleware := middlewares[i]
-			next = middleware(next)
+			if middleware != nil {
+				next = middleware(next)
+			}
 		}
 		return next
 	}
